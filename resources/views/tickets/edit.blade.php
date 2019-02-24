@@ -1,7 +1,7 @@
 @extends('layouts.app')
-@section('title', 'Contact')
+@section('title', 'Edit Ticket!')
 @section('content')
-    <div class="container col-md-8">
+    <div class="container">
         <div class="card card-body">
             <form method="POST"> 
                 @foreach ($errors->all() as $error)
@@ -15,24 +15,33 @@
                 @endif
     
                 <input type="hidden" name="_token" value="{!! csrf_token() !!}">
-                <legend> Submit New Ticket </legend>
+                <legend>Edit Ticket</legend>
                 <div class="form-group">
                     <label for="title" class="col-lg-2 control-label">Title </label>
                     <div class="col-lg-10">
-                        <input type="text" class="form-control" id="title" name="title" placeholder="Ticket Title">
+                        <input type="text" class="form-control" id="title" name="title" value="{!! $ticket->title !!}">
                     </div>
                 </div>
     
                 <div class="form-group">
                     <label for="content" class="col-lg-2 control-label">Content</label>
                     <div class="col-lg-10">
-                        <textarea class="form-control" id="content" name="content" rows="3"></textarea>
+                        <textarea class="form-control" id="content" name="content" rows="3">{!! $ticket->content !!}</textarea>
                     </div>
                 </div>
-                <button class="btn btn-primary" type="submit">Submit Ticket</button>
-                <button class="btn btn-secondary">Cancel</button>
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" name="status" {!! $ticket->status?"":"checked" !!}> Close this ticket ?
+                    </label>
+                </div>
+                <div class="form-group">
+                    <div class="col-lg-10">
+                        <button class="btn btn-secondary">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Update</button>
+                    </div>
+                </div>
+
             </form>
         </div>
     </div>
-
 @endsection

@@ -26,10 +26,33 @@
 // });
 
 
-Route::get('/', 'PagesController@home');
 
-Route::get('/contact', 'TicketsController@create');
+Route::get('/', 'HomeController@index')->name('home');
+
+Auth::routes();
+
+Route::get('/contact', 'TicketsController@create')->name('contact');
 Route::post('/contact', 'TicketsController@store');
 
-Route::get('/users/register', 'Auth\RegisterController');
+Route::get('/tickets', 'TicketsController@index')->name('ticket');
+Route::get('/tickets/{slug}', 'TicketsController@show');
 
+
+Route::get('/tickets/{slug?}/edit', 'TicketsController@edit');
+Route::post('/tickets/{slug?}/edit', 'TicketsController@update');
+
+Route::post('/tickets/{slug}/delete', 'TicketsController@destroy');
+
+//mail
+Route::get('/sendemail', function () {
+    $data = array(
+        'name' => "Testing Ticketing"
+    );
+
+    Mail::send('emails.welcome', $data, function ($message) {
+        $message->from('admin@gmail.com', 'Ticketing Operational');
+        $message->to('satriyopamungkas@gmail.com')->subject('testing ticketing email');
+    });
+
+    return "your email has been sent succesfully";
+});

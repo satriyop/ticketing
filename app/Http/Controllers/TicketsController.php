@@ -4,8 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Ticket;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
 
 class TicketsController extends Controller
 {
@@ -16,7 +17,8 @@ class TicketsController extends Controller
      */
     public function index()
     {
-        //
+        $tickets = Ticket::all();
+        return view('tickets.index', compact('tickets'));
     }
 
     /**
@@ -56,6 +58,15 @@ class TicketsController extends Controller
 
         $ticket->save();
 
+        $data = array(
+            'ticket' => $slug,
+        );
+
+        Mail::send('emails.ticket', $data, function ($message) {
+            $message->from('admin@gmail.com', 'Ticketing Operational');
+            $message->to('satriyopamungkas@gmail.com')->subject('There is new ticket');
+        });
+
         return redirect('/contact')->with('status', 'Your ticket has been created with ticket ID : '.$slug);
     }
 
@@ -65,42 +76,59 @@ class TicketsController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show($slug)
     {
-        //
+        $ticket = Ticket::whereSlug($slug)->firstOrFail();
+        return view('tickets.show', compact('ticket'));
     }
 
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int  $id
+     * @param  int  $slug
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function edit($slug)
     {
-        //
+        $ticket = Ticket::whereSlug($slug)->firstOrFail();
+        return view('tickets.edit', compact('ticket'));
     }
 
     /**
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
+     * @param  int  $slug
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, $slug)
     {
-        //
+        $ticket = Ticket::whereSlug($slug)->firstOrFail();
+        $ticket->title = $request->get('title');
+        $ticket->content = $request->get('content');
+
+        if($request->get('status') != null) {
+            $ticket->status = 0;
+        } else {
+            $ticket->status = 1;
+        }
+
+        $ticket->save();
+
+        return redirect(action('TicketsController@edit', $ticket->slug))->with('status', 'The Ticket ID '.$slug. ' has been updated !');
     }
 
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
+     * @param  int  $slug
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy($slug)
     {
-        //
+        $ticket = Ticket::whereSlug($slug)->firstOrFail();
+        $ticket->delete();
+
+        return redirect('/tickets')->with('status', 'The Ticket ID '.$slug. 'has been deleted !!');
     }
 }
