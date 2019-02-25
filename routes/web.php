@@ -56,3 +56,6 @@ Route::get('/sendemail', function () {
 
     return "your email has been sent succesfully";
 });
+
+//comment
+Route::post('/comment', 'CommentsController@newComment');
